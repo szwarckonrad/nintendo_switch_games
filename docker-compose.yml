@@ -1,0 +1,36 @@
+version: "3"
+
+services:
+
+  allegro:
+    container_name: "allegro"
+    build:
+      context: .
+      dockerfile: "allegro/Dockerfile"
+    depends_on:
+      - db    
+    environment:
+      ALLEGRO_AUTH_STRING: ${ALLEGRO_API_KEY}
+      DB_URL: postgres://${ALLEGRO_SWITCH_GAMES_USER}:${ALLEGRO_SWITCH_GAMES_PWD}@db/${ALLEGRO_SWITCH_GAMES_DB}
+
+  game_list:
+    container_name: "game_list"
+    build:
+      context: .
+      dockerfile: "game_list/Dockerfile"
+    depends_on:
+      - db
+    environment:
+      GOOGLE_DRIVE_API_KEY: ${GOOGLE_DRIVE_API_KEY}
+      DB_URL: postgres://${ALLEGRO_SWITCH_GAMES_USER}:${ALLEGRO_SWITCH_GAMES_PWD}@db/${ALLEGRO_SWITCH_GAMES_DB}
+
+  db:
+    image: postgres
+    volumes:
+      - ./db/data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: ${ALLEGRO_SWITCH_GAMES_PWD}
+      POSTGRES_USER: ${ALLEGRO_SWITCH_GAMES_USER}
+      POSTGRES_DB: ${ALLEGRO_SWITCH_GAMES_DB}
